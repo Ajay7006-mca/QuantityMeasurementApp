@@ -528,7 +528,7 @@ class MeasurementApplicationTests {
         assertEquals(0.6666667, result.getValue(), 1e-6);
     }
 
-    // Test Case 13 (All unit combinations)
+    // Test Case 13 (All unit combinations)....
     @Test
     void testAddition_ExplicitTargetUnit_AllUnitCombinations() {
         QuantityLength q1 = new QuantityLength(1.0, LengthUnit.FEET);
