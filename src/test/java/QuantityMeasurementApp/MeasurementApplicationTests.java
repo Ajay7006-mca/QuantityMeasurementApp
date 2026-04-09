@@ -178,7 +178,7 @@ class MeasurementApplicationTests {
         });
     }
 
-    // 15 (Reflexive)
+    // 15 (Reflexive) testcase
     @Test
     void testEquality_CentimetersSameReference() {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.CENTIMETERS);
