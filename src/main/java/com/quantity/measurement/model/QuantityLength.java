@@ -64,6 +64,7 @@ public class QuantityLength {
 
     // ========================
     // CONVERT (UC5 / UC8)
+    // Original -> Feet(Base) -> TargetUnit
     // ========================
     public QuantityLength toConvert(LengthUnit targetUnit) {
         if (targetUnit == null) {
@@ -71,7 +72,7 @@ public class QuantityLength {
         }
 
         double thisInFeet = unit.convertToBaseUnit(this.value);
-        double targetValue = unit.convertFromBaseUnit(thisInFeet);
+        double targetValue = targetUnit.convertFromBaseUnit(thisInFeet);
 
         return new QuantityLength(targetValue, targetUnit);
     }

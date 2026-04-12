@@ -5,7 +5,7 @@ public enum LengthUnit {
     FEET(1.0),
     INCH(1.0 / 12),
     YARDS(3.0),
-    CENTIMETERS(1.0 / 13.48);
+    CENTIMETERS(1.0 / 30.48);
 
     private final double toFeetFactor;
 

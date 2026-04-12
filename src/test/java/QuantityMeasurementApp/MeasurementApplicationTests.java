@@ -7,6 +7,9 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MeasurementApplicationTests {
+
+    private static final double EPSILON = 1e-6;
+
     //UC4
 
     // 1
@@ -75,7 +78,7 @@ class MeasurementApplicationTests {
     // 8
     @Test
     void testEquality_CentimetersToInches_EquivalentValue() {
-        assertNotEquals(
+        assertEquals(
                 new QuantityLength(1.0, LengthUnit.CENTIMETERS),
                 new QuantityLength(0.393701, LengthUnit.INCH)
         );
@@ -166,7 +169,7 @@ class MeasurementApplicationTests {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.FEET);
 
         // stays same because bug
-        assertEquals(1.0,
+        assertEquals(12.0,
                 q.toConvert(LengthUnit.INCH).getValue());
     }
 
@@ -175,7 +178,7 @@ class MeasurementApplicationTests {
     void testConversion_InchesToFeet() {
         QuantityLength q = new QuantityLength(24.0, LengthUnit.INCH);
 
-        assertEquals(24.0,
+        assertEquals(2.0,
                 q.toConvert(LengthUnit.FEET).getValue());
     }
 
@@ -184,7 +187,7 @@ class MeasurementApplicationTests {
     void testConversion_YardsToInches() {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.YARDS);
 
-        assertEquals(1.0,
+        assertEquals(36.0,
                 q.toConvert(LengthUnit.INCH).getValue());
     }
 
@@ -193,7 +196,7 @@ class MeasurementApplicationTests {
     void testConversion_InchesToYards() {
         QuantityLength q = new QuantityLength(72.0, LengthUnit.INCH);
 
-        assertEquals(72.0,
+        assertEquals(2.0,
                 q.toConvert(LengthUnit.YARDS).getValue());
     }
 
@@ -202,7 +205,7 @@ class MeasurementApplicationTests {
     void testConversion_CentimetersToInches() {
         QuantityLength q = new QuantityLength(2.54, LengthUnit.CENTIMETERS);
 
-        assertEquals(2.54,
+        assertEquals(1.0,
                 q.toConvert(LengthUnit.INCH).getValue());
     }
 
@@ -211,7 +214,7 @@ class MeasurementApplicationTests {
     void testConversion_FeetToYards() {
         QuantityLength q = new QuantityLength(6.0, LengthUnit.FEET);
 
-        assertEquals(6.0,
+        assertEquals(2.0,
                 q.toConvert(LengthUnit.YARDS).getValue());
     }
 
@@ -229,7 +232,7 @@ class MeasurementApplicationTests {
     void testConversion_NegativeValue() {
         QuantityLength q = new QuantityLength(-1.0, LengthUnit.FEET);
 
-        assertEquals(-1.0,
+        assertEquals(-12.0,
                 q.toConvert(LengthUnit.INCH).getValue());
     }
 
@@ -269,7 +272,7 @@ class MeasurementApplicationTests {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.CENTIMETERS);
 
         double result = q.getUnit().convertToBaseUnit(1.0);
-        double expected = 1.0 / 13.48;
+        double expected = 1.0 / 30.48;
 
         assertEquals(expected, result, 1e-6);
     }
@@ -340,7 +343,7 @@ class MeasurementApplicationTests {
 
         QuantityLength result = cm.add(inch);
 
-        assertEquals(3.6633, result.getValue(), 1e-3);
+        assertEquals(5.08, result.getValue(), 1e-6);
     }
 
     // Test Case 7 (Commutativity)
@@ -453,7 +456,7 @@ class MeasurementApplicationTests {
 
         QuantityLength result = q1.add(q2, LengthUnit.CENTIMETERS);
 
-        assertEquals(3.6633, result.getValue(), 1e-3);
+        assertEquals(5.08, result.getValue(), 1e-6);
     }
 
     // Test Case 5 (Target = first operand)
@@ -569,10 +572,9 @@ class MeasurementApplicationTests {
 
         QuantityLength result = q1.add(q2, LengthUnit.CENTIMETERS);
 
-        assertEquals(3.6633, result.getValue(), 1e-3);
+        assertEquals(5.08, result.getValue(), 1e-6);
     }
     //UC8
-    private static final double EPSILON = 1e-6;
     // ENUM CONSTANT TESTS
     // Test Case 1 (FEET constant)
     @Test
@@ -595,7 +597,7 @@ class MeasurementApplicationTests {
     // Test Case 4 (CENTIMETERS constant)
     @Test
     void testLengthUnitEnum_CentimetersConstant() {
-        assertEquals(1.0 / 13.48, LengthUnit.CENTIMETERS.convertToBaseUnit(1.0), EPSILON);		}
+        assertEquals(1.0 / 30.48, LengthUnit.CENTIMETERS.convertToBaseUnit(1.0), EPSILON);		}
 
     // ===============================
     // convertToBaseUnit (toFeet)
@@ -622,7 +624,7 @@ class MeasurementApplicationTests {
     // Test Case 8 (Centimeters → Feet)
     @Test
     void testConvertToBaseUnit_CentimetersToFeet() {
-        assertEquals(1.0, LengthUnit.CENTIMETERS.convertToBaseUnit(13.48), EPSILON);		}
+        assertEquals(1.0, LengthUnit.CENTIMETERS.convertToBaseUnit(30.48), EPSILON);		}
 
     // ===============================
     // convertFromBaseUnit (fromFeet)
@@ -649,7 +651,7 @@ class MeasurementApplicationTests {
     // Test Case 12 (Feet → Centimeters)
     @Test
     void testConvertFromBaseUnit_FeetToCentimeters() {
-        assertEquals(13.48, LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0), EPSILON);		}
+        assertEquals(30.48, LengthUnit.CENTIMETERS.convertFromBaseUnit(1.0), EPSILON);		}
 
     // ===============================
     // QuantityLength Functional Tests
@@ -669,7 +671,7 @@ class MeasurementApplicationTests {
     void testQuantityLengthRefactored_ConvertTo() {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.FEET);
 
-        assertEquals(1.0, q.toConvert(LengthUnit.INCH).getValue(), EPSILON);
+        assertEquals(12.0, q.toConvert(LengthUnit.INCH).getValue(), EPSILON);
     }
     // Test Case 15 (Add: 1 ft + 12 in → 2 ft)
     @Test
@@ -758,7 +760,7 @@ class MeasurementApplicationTests {
     void testBackwardCompatibility_UC5() {
         QuantityLength q = new QuantityLength(1.0, LengthUnit.FEET);
 
-        assertEquals(1.0, q.toConvert(LengthUnit.INCH).getValue(), EPSILON);
+        assertEquals(12.0, q.toConvert(LengthUnit.INCH).getValue(), EPSILON);
     }
     // Test Case 23 (UC6 Addition still works)
     @Test
