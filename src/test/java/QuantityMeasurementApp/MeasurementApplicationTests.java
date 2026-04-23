@@ -923,7 +923,7 @@ class MeasurementApplicationTests {
     @Test
     void testConversion_PoundToKilogram_Weight() {
         QuantityWeight q = new QuantityWeight(2.20462262, WeightUnit.POUND);
-        assertEquals(1.0, q.convertTo(WeightUnit.KILOGRAM).getValue(), EPSILON);
+        assertEquals(1.0, q.toconvert(WeightUnit.KILOGRAM).getValue(), EPSILON);
     }
 
     // Test Case 15 (kg → lb)
@@ -931,7 +931,7 @@ class MeasurementApplicationTests {
     void testConversion_KilogramToPound() {
         QuantityWeight q = new QuantityWeight(1.0, WeightUnit.KILOGRAM);
         assertEquals(2.20462,
-                q.convertTo(WeightUnit.POUND).getValue(),
+                q.toconvert(WeightUnit.POUND).getValue(),
                 1e-4);
     }
 
@@ -939,29 +939,29 @@ class MeasurementApplicationTests {
     @Test
     void testConversion_SameUnit() {
         QuantityWeight q = new QuantityWeight(5.0, WeightUnit.KILOGRAM);
-        assertEquals(5.0, q.convertTo(WeightUnit.KILOGRAM).getValue(), EPSILON);
+        assertEquals(5.0, q.toconvert(WeightUnit.KILOGRAM).getValue(), EPSILON);
     }
 
     // Test Case 17 (Zero conversion)
     @Test
     void testConversion_Zero_Value() {
         QuantityWeight q = new QuantityWeight(0.0, WeightUnit.KILOGRAM);
-        assertEquals(0.0, q.convertTo(WeightUnit.GRAM).getValue(), EPSILON);
+        assertEquals(0.0, q.toconvert(WeightUnit.GRAM).getValue(), EPSILON);
     }
 
     // Test Case 18 (Negative conversion)
     @Test
     void test_Conversion_NegativeValue() {
         QuantityWeight q = new QuantityWeight(-1.0, WeightUnit.KILOGRAM);
-        assertEquals(-1000.0, q.convertTo(WeightUnit.GRAM).getValue(), EPSILON);
+        assertEquals(-1000.0, q.toconvert(WeightUnit.GRAM).getValue(), EPSILON);
     }
 
     // Test Case 19 (Round-trip)
     @Test
     void test_Conversion_RoundTrip() {
         QuantityWeight original = new QuantityWeight(5.0, WeightUnit.KILOGRAM);
-        QuantityWeight converted = original.convertTo(WeightUnit.GRAM);
-        QuantityWeight back = converted.convertTo(WeightUnit.KILOGRAM);
+        QuantityWeight converted = original.toconvert(WeightUnit.GRAM);
+        QuantityWeight back = converted.toconvert(WeightUnit.KILOGRAM);
 
         assertEquals(original.getValue(), back.getValue(), EPSILON);
     }

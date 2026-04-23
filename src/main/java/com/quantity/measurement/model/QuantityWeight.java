@@ -34,7 +34,7 @@ public class QuantityWeight {
     // CONVERT (UC9)
     // Original -> Kilogram (Base) -> TargetUnit
     // ========================
-    public QuantityWeight convertTo(WeightUnit targetUnit) {
+    public QuantityWeight toconvert(WeightUnit targetUnit) {
         if (targetUnit == null) {
             throw new IllegalArgumentException("Target unit should not be null");
         }
