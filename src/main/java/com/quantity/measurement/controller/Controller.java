@@ -1,9 +1,7 @@
 package com.quantity.measurement.controller;
 
 import com.quantity.measurement.dto.QuantityDTO;
-
 import com.quantity.measurement.service.Service;
-
 public class Controller {
 
     private final Service service;

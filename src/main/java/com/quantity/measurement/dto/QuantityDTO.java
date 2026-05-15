@@ -1,5 +1,7 @@
 package com.quantity.measurement.dto;
 
+import com.quantity.measurement.enumsImpl.WeightUnit;
+
 public class QuantityDTO {
 
     private double value;
