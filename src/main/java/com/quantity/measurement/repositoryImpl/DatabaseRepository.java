@@ -19,7 +19,6 @@ import com.quantity.measurement.repository.Repository;
 /**
  * JDBC-based repository implementation.
  */
-@org.springframework.stereotype.Repository
 public class DatabaseRepository implements Repository {
 
     private static final Logger LOGGER =

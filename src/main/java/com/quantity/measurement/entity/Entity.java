@@ -1,37 +1,78 @@
 package com.quantity.measurement.entity;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.PreUpdate;
+import jakarta.persistence.Table;
+
 import java.io.Serial;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 
-//While implementing Serializable must need to rememember that :
-//Warning : If you read object data from an untrusted source, it can be dangerous...
-//          Don’t open boxes from strangers without checking...
-
+@jakarta.persistence.Entity
+@Table(name = "quantity_measurement_entity")
 public class Entity
         implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "operand1_value")
     private double operand1Value;
+
+    @Column(name = "operand1_unit", length = 50)
     private String operand1Unit;
 
+    @Column(name = "operand2_value")
     private double operand2Value;
+
+    @Column(name = "operand2_unit", length = 50)
     private String operand2Unit;
 
+    @Column(name = "measurement_type", length = 50)
     private String measurementType;
+
+    @Column(name = "operation_type", length = 50)
     private String operationType;
 
+    @Column(name = "result_value")
     private double resultValue;
+
+    @Column(name = "result_unit", length = 50)
     private String resultUnit;
 
-    // DEFAULT CONSTRUCTOR
-    public Entity() {
+    @Column(name = "is_error")
+    private boolean error;
 
+    @Column(name = "error_message", length = 500)
+    private String errorMessage;
+
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    public Entity() {
     }
 
+    @PrePersist
+    public void prePersist() {
+        createdAt = LocalDateTime.now();
+        updatedAt = createdAt;
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
     public Long getId() {
         return id;
@@ -103,5 +144,37 @@ public class Entity
 
     public void setResultUnit(String resultUnit) {
         this.resultUnit = resultUnit;
+    }
+
+    public boolean isError() {
+        return error;
+    }
+
+    public void setError(boolean error) {
+        this.error = error;
+    }
+
+    public String getErrorMessage() {
+        return errorMessage;
+    }
+
+    public void setErrorMessage(String errorMessage) {
+        this.errorMessage = errorMessage;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
+    }
+
+    public void setUpdatedAt(LocalDateTime updatedAt) {
+        this.updatedAt = updatedAt;
     }
 }

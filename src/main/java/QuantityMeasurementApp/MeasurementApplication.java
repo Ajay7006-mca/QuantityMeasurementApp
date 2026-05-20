@@ -1,17 +1,19 @@
 package QuantityMeasurementApp;
 
-import com.quantity.measurement.enumsImpl.LengthUnit;
-import com.quantity.measurement.model.QuantityLength;
+import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.persistence.autoconfigure.EntityScan;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@SpringBootApplication
+@SpringBootApplication(scanBasePackages = {
+        "QuantityMeasurementApp",
+        "com.quantity.measurement"
+})
+@EntityScan("com.quantity.measurement.entity")
+@EnableJpaRepositories("com.quantity.measurement.repository")
 public class MeasurementApplication {
 
     public static void main(String[] args) {
-
-        QuantityLength q1 = new QuantityLength(2.0, LengthUnit.CENTIMETERS);
-        QuantityLength q2 = new QuantityLength(2.0, LengthUnit.YARDS);
-
-        System.out.println(q1.equals(q2));
+        SpringApplication.run(MeasurementApplication.class, args);
     }
 }

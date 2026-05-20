@@ -12,6 +12,7 @@ public class CacheRepository implements Repository {
 
     private final List<Entity> cache = new ArrayList<>();
 
+    //constructor
     private CacheRepository() {
     }
 

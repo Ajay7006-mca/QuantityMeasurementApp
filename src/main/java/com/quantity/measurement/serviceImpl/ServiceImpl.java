@@ -13,15 +13,16 @@ import com.quantity.measurement.exception.Exception;
 import com.quantity.measurement.model.Quantity;
 import com.quantity.measurement.repository.Repository;
 import com.quantity.measurement.service.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-public class ServiceImpl implements Service{
+@org.springframework.stereotype.Service
+public class ServiceImpl implements Service {
 
-    private static final Logger logger =
-            LoggerFactory.getLogger(ServiceImpl.class);
+    private static final Logger logger = LoggerFactory.getLogger(ServiceImpl.class);
 
-    private  Repository repository;
+    private final Repository repository;
 
-    //DI using Constructor
+    // DI using Constructor
     public ServiceImpl(Repository repository2) {
         this.repository = repository2;
 
@@ -31,50 +32,111 @@ public class ServiceImpl implements Service{
 
     private IMeasurable getUnit(String unit, String type) {
 
-        logger.debug("Resolving unit {} for type {}", unit, type);
+        String normalizedUnit = normalizeUnit(unit);
+        String normalizedType = normalizeMeasurementType(type);
 
-        return switch (type) {
-            case "LENGTH" -> LengthUnit.valueOf(unit);
-            case "WEIGHT" -> WeightUnit.valueOf(unit);
-            case "VOLUME" -> VolumeUnit.valueOf(unit);
-            case "TEMPERATURE" -> TemperatureUnit.valueOf(unit);
+        logger.debug("Resolving unit {} for type {}", normalizedUnit, normalizedType);
+
+        return switch (normalizedType) {
+            case "LENGTH" -> LengthUnit.valueOf(normalizedUnit);
+            case "WEIGHT" -> WeightUnit.valueOf(normalizedUnit);
+            case "VOLUME" -> VolumeUnit.valueOf(normalizedUnit);
+            case "TEMPERATURE" -> TemperatureUnit.valueOf(normalizedUnit);
             default -> throw new Exception("Invalid type");
         };
     }
 
+    private String normalizeMeasurementType(String type) {
+        if (type == null || type.isBlank()) {
+            throw new Exception("Measurement type is required");
+        }
+
+        return switch (type.trim().toUpperCase()) {
+            case "LENGTH", "LENGTHUNIT" -> "LENGTH";
+            case "WEIGHT", "WEIGHTUNIT" -> "WEIGHT";
+            case "VOLUME", "VOLUMEUNIT" -> "VOLUME";
+            case "TEMPERATURE", "TEMPERATUREUNIT" -> "TEMPERATURE";
+            default -> throw new Exception("Invalid type");
+        };
+    }
+
+    private String normalizeUnit(String unit) {
+        if (unit == null || unit.isBlank()) {
+            throw new Exception("Unit is required");
+        }
+
+        String normalized = unit.trim().toUpperCase();
+        return switch (normalized) {
+            case "INCHES" -> "INCH";
+            case "YARD" -> "YARDS";
+            case "CENTIMETER" -> "CENTIMETERS";
+            case "LITER" -> "LITRE";
+            case "MILLILITER" -> "MILLILITRE";
+            default -> normalized;
+        };
+    }
+
+    private Entity createEntity(
+            QuantityDTO q1,
+            QuantityDTO q2,
+            String measurementType,
+            String operationType,
+            double resultValue,
+            String resultUnit) {
+        Entity entity = new Entity();
+        entity.setOperand1Value(q1.getValue());
+        entity.setOperand1Unit(q1.getUnit());
+        if (q2 != null) {
+            entity.setOperand2Value(q2.getValue());
+            entity.setOperand2Unit(q2.getUnit());
+        }
+        entity.setMeasurementType(measurementType);
+        entity.setOperationType(operationType);
+        entity.setResultValue(resultValue);
+        entity.setResultUnit(resultUnit);
+        return entity;
+    }
+
+    private void saveError(QuantityDTO q1, QuantityDTO q2, String operationType, java.lang.Exception exception) {
+        try {
+            Entity entity = new Entity();
+            if (q1 != null) {
+                entity.setOperand1Value(q1.getValue() == null ? 0.0 : q1.getValue());
+                entity.setOperand1Unit(q1.getUnit());
+                entity.setMeasurementType(q1.getMeasurementType());
+            }
+            if (q2 != null) {
+                entity.setOperand2Value(q2.getValue() == null ? 0.0 : q2.getValue());
+                entity.setOperand2Unit(q2.getUnit());
+            }
+            entity.setOperationType(operationType);
+            entity.setResultUnit("ERROR");
+            entity.setError(true);
+            entity.setErrorMessage(exception.getMessage());
+            repository.save(entity);
+        } catch (java.lang.Exception repositoryException) {
+            logger.warn("Unable to persist failed {} operation", operationType, repositoryException);
+        }
+    }
+
     @Override
+    @Transactional
     public QuantityDTO add(QuantityDTO q1, QuantityDTO q2, String targetUnit) {
 
         logger.info("ADD operation started");
 
         try {
 
-            IMeasurable u1 = getUnit( q1.getUnit(), q1.getMeasurementType());
+            IMeasurable u1 = getUnit(q1.getUnit(), q1.getMeasurementType());
 
             IMeasurable u2 = getUnit(q2.getUnit(), q2.getMeasurementType());
 
             Quantity<?> result = new Quantity<>(q1.getValue(), u1).add(new Quantity<>(q2.getValue(), u2),
-                    getUnit( targetUnit, q1.getMeasurementType()));
+                    getUnit(targetUnit, q1.getMeasurementType()));
 
-            Entity entity = new Entity();
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
 
-            entity.setOperand1Value(q1.getValue());
-
-            entity.setOperand1Unit(q1.getUnit());
-
-            entity.setOperand2Value(q2.getValue());
-
-            entity.setOperand2Unit(q2.getUnit());
-
-            entity.setMeasurementType(q1.getMeasurementType());
-
-            entity.setOperationType("ADD");
-
-            entity.setResultValue(result.getValue());
-
-            entity.setResultUnit(targetUnit);
-
-            repository.save(entity);
+            repository.save(createEntity(q1, q2, measurementType, "ADD", result.getValue(), targetUnit));
 
             logger.info("ADD operation successful");
 
@@ -84,12 +146,14 @@ public class ServiceImpl implements Service{
 
             logger.error("ADD operation failed", e);
 
+            saveError(q1, q2, "ADD", e);
+
             return new QuantityDTO(true, e.getMessage());
         }
     }
 
-
     @Override
+    @Transactional
     public QuantityDTO subtract(QuantityDTO q1, QuantityDTO q2, String targetUnit) {
 
         logger.info("SUBTRACT operation started");
@@ -105,25 +169,9 @@ public class ServiceImpl implements Service{
                             new Quantity<>(q2.getValue(), u2),
                             getUnit(targetUnit, q1.getMeasurementType()));
 
-            Entity entity = new Entity();
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
 
-            entity.setOperand1Value(q1.getValue());
-
-            entity.setOperand1Unit(q1.getUnit());
-
-            entity.setOperand2Value(q2.getValue());
-
-            entity.setOperand2Unit(q2.getUnit());
-
-            entity.setMeasurementType(q1.getMeasurementType());
-
-            entity.setOperationType("SUBTRACT");
-
-            entity.setResultValue(result.getValue());
-
-            entity.setResultUnit(targetUnit);
-
-            repository.save(entity);
+            repository.save(createEntity(q1, q2, measurementType, "SUBTRACT", result.getValue(), targetUnit));
 
             logger.info("SUBTRACT operation successful");
 
@@ -131,13 +179,16 @@ public class ServiceImpl implements Service{
 
         } catch (java.lang.Exception e) {
 
-            logger.error("SUBTRACT operation failed",e);
+            logger.error("SUBTRACT operation failed", e);
+
+            saveError(q1, q2, "SUBTRACT", e);
 
             return new QuantityDTO(true, e.getMessage());
         }
     }
 
     @Override
+    @Transactional
     public QuantityDTO divide(QuantityDTO q1, QuantityDTO q2) {
 
         logger.info("DIVIDE operation started");
@@ -149,27 +200,11 @@ public class ServiceImpl implements Service{
             IMeasurable u2 = getUnit(q2.getUnit(), q2.getMeasurementType());
 
             double result = new Quantity<>(q1.getValue(), u1)
-                    .divide(new Quantity<>(q2.getValue(),u2));
+                    .divide(new Quantity<>(q2.getValue(), u2));
 
-            Entity entity = new Entity();
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
 
-            entity.setOperand1Value(q1.getValue());
-
-            entity.setOperand1Unit(q1.getUnit());
-
-            entity.setOperand2Value(q2.getValue());
-
-            entity.setOperand2Unit(q2.getUnit());
-
-            entity.setMeasurementType(q1.getMeasurementType());
-
-            entity.setOperationType("DIVIDE");
-
-            entity.setResultValue(result);
-
-            entity.setResultUnit("SCALAR");
-
-            repository.save(entity);
+            repository.save(createEntity(q1, q2, measurementType, "DIVIDE", result, "SCALAR"));
 
             logger.info("DIVIDE operation successful");
 
@@ -179,11 +214,14 @@ public class ServiceImpl implements Service{
 
             logger.error("DIVIDE operation failed", e);
 
-            return new QuantityDTO(true,e.getMessage());
+            saveError(q1, q2, "DIVIDE", e);
+
+            return new QuantityDTO(true, e.getMessage());
         }
     }
 
     @Override
+    @Transactional
     public QuantityDTO convert(QuantityDTO q, String targetUnit) {
 
         logger.info("CONVERT operation started");
@@ -194,6 +232,10 @@ public class ServiceImpl implements Service{
             Quantity<?> result = new Quantity<>(q.getValue(), u)
                     .toConvert(getUnit(targetUnit, q.getMeasurementType()));
 
+            String measurementType = normalizeMeasurementType(q.getMeasurementType());
+
+            repository.save(createEntity(q, null, measurementType, "CONVERT", result.getValue(), targetUnit));
+
             logger.info("CONVERT operation successful");
 
             return new QuantityDTO(result.getValue(), targetUnit, q.getMeasurementType());
@@ -202,11 +244,14 @@ public class ServiceImpl implements Service{
 
             logger.error("CONVERT operation failed : {}", e.getMessage());
 
+            saveError(q, null, "CONVERT", e);
+
             return new QuantityDTO(true, e.getMessage());
         }
     }
 
     @Override
+    @Transactional
     public QuantityDTO compare(QuantityDTO q1, QuantityDTO q2) {
 
         logger.info("COMPARE operation started");
@@ -222,6 +267,10 @@ public class ServiceImpl implements Service{
             boolean result = new Quantity<>(q1.getValue(), u1)
                     .equals(new Quantity<>(q2.getValue(), u2));
 
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
+
+            repository.save(createEntity(q1, q2, measurementType, "COMPARE", result ? 1 : 0, "BOOLEAN"));
+
             logger.info("COMPARE operation successful");
 
             return new QuantityDTO(result ? 1 : 0, "BOOLEAN", q1.getMeasurementType());
@@ -229,6 +278,8 @@ public class ServiceImpl implements Service{
         } catch (java.lang.Exception e) {
 
             logger.error("COMPARE operation failed : {}", e.getMessage());
+
+            saveError(q1, q2, "COMPARE", e);
 
             return new QuantityDTO(true, e.getMessage());
         }

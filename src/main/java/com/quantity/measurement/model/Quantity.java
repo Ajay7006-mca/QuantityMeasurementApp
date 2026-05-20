@@ -10,6 +10,7 @@ public class Quantity<U extends IMeasurable> {
     private final double value;
     private final U unit;
 
+    // Constructor
     public Quantity(double value, U unit) {
         if (unit == null)
             throw new NullPointerException("Unit shouldn't be null");
@@ -20,6 +21,7 @@ public class Quantity<U extends IMeasurable> {
         this.unit = unit;
     }
 
+    // Conversion
     public Quantity<U> toConvert(U targetUnit) {
         if (targetUnit == null)
             throw new NullPointerException("Target unit cannot be null");
@@ -53,6 +55,8 @@ public class Quantity<U extends IMeasurable> {
         }
     }
 
+    // ================= GETTERS =================
+
     public double getValue() {
         return value;
     }
@@ -60,6 +64,8 @@ public class Quantity<U extends IMeasurable> {
     public U getUnit() {
         return unit;
     }
+
+    // ================= VALIDATION =================
 
     private void validate(Quantity<U> other, U target, boolean requireTarget) {
         if (other == null) {
@@ -75,6 +81,8 @@ public class Quantity<U extends IMeasurable> {
         }
     }
 
+    // ================= CORE =================
+
     private double base(U unit, double value) {
         return unit.convertToBaseUnit(value);
     }
@@ -84,6 +92,12 @@ public class Quantity<U extends IMeasurable> {
         double b = base(other.unit, other.value);
         return op.apply(a, b);
     }
+
+    private double round(double value) {
+        return Math.round(value * 1000000.0) / 1000000.0;
+    }
+
+    // ================= OPERATIONS =================
 
     public Quantity<U> add(Quantity<U> other) {
         return add(other, this.unit);
@@ -118,6 +132,7 @@ public class Quantity<U extends IMeasurable> {
         this.unit.validateOperationSupport("DIVIDE");
         return operate(other, ArithmeticOperation.DIVIDE);
     }
+    // ================= EQUALS / HASHCODE =================
 
     @Override
     public boolean equals(Object obj) {
