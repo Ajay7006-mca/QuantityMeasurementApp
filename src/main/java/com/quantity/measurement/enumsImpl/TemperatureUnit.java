@@ -1,4 +1,5 @@
 package com.quantity.measurement.enumsImpl;
+
 import com.quantity.measurement.enums.IMeasurable;
 import java.util.function.Function;
 
@@ -23,8 +24,8 @@ public enum TemperatureUnit implements IMeasurable {
     private static final SupportsArithmetic supportsArithmetic = () -> false;
 
     TemperatureUnit(double conversionFactor,
-                    Function<Double, Double> toCelsius,
-                    Function<Double, Double> fromCelsius) {
+            Function<Double, Double> toCelsius,
+            Function<Double, Double> fromCelsius) {
         this.conversionFactor = conversionFactor;
         this.toCelsius = toCelsius;
         this.fromCelsius = fromCelsius;
@@ -56,8 +57,7 @@ public enum TemperatureUnit implements IMeasurable {
     public void validateOperationSupport(String operation) {
         throw new UnsupportedOperationException(
                 "Temperature does not support " + operation +
-                        " operation. Arithmetic operations are not meaningful for absolute temperatures."
-        );
+                        " operation. Arithmetic operations are not meaningful for absolute temperatures.");
     }
 
     private void validate(double value) {

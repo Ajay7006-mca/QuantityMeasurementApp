@@ -8,6 +8,7 @@ import com.quantity.measurement.service.Service;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -64,15 +65,37 @@ public class QuantityMeasurementController {
         return response(result);
     }
 
+    @PostMapping("/multiply")
+    public ResponseEntity<QuantityDTO> multiply(@Valid @RequestBody QuantityInputDTO input) {
+        QuantityDTO result = service.multiply(
+                input.getThisQuantityDTO(),
+                input.getThatQuantityDTO(),
+                resolveTargetUnit(input)
+        );
+        return response(result);
+    }
+
     @PostMapping("/divide")
     public ResponseEntity<QuantityDTO> divide(@Valid @RequestBody QuantityInputDTO input) {
         QuantityDTO result = service.divide(input.getThisQuantityDTO(), input.getThatQuantityDTO());
         return response(result);
     }
 
+    @PostMapping("/percentage")
+    public ResponseEntity<QuantityDTO> percentage(@Valid @RequestBody QuantityInputDTO input) {
+        QuantityDTO result = service.percentage(input.getThisQuantityDTO(), input.getThatQuantityDTO());
+        return response(result);
+    }
+
     @GetMapping("/history")
     public List<QuantityMeasurementDTO> history() {
         return QuantityMeasurementDTO.fromEntityList(repository.getAllMeasurements());
+    }
+
+    @DeleteMapping("/history")
+    public ResponseEntity<Map<String, Object>> clearHistory() {
+        repository.deleteAll();
+        return ResponseEntity.ok(Map.of("deleted", true));
     }
 
     @GetMapping("/history/operation/{operation}")

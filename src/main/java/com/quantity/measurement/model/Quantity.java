@@ -37,6 +37,8 @@ public class Quantity<U extends IMeasurable> {
 
         SUBTRACT((a, b) -> a - b),
 
+        MULTIPLY((a, b) -> a * b),
+
         DIVIDE((a, b) -> {
             if (Math.abs(b) < EPSILON) {
                 throw new ArithmeticException("Division by zero");
@@ -125,6 +127,16 @@ public class Quantity<U extends IMeasurable> {
         double converted = targetUnit.convertFromBaseUnit(resultBase);
 
         return new Quantity<>(converted, targetUnit);
+    }
+
+    public Quantity<U> multiply(Quantity<U> other, U targetUnit) {
+        validate(other, targetUnit, true);
+        this.unit.validateOperationSupport("MULTIPLY");
+
+        double resultBase = operate(other, ArithmeticOperation.MULTIPLY);
+        double converted = targetUnit.convertFromBaseUnit(resultBase);
+
+        return new Quantity<>(round(converted), targetUnit);
     }
 
     public double divide(Quantity<U> other) {

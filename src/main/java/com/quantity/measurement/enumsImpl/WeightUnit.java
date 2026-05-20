@@ -1,6 +1,7 @@
 package com.quantity.measurement.enumsImpl;
-import com.quantity.measurement.enumsImpl.WeightUnit;
+
 import com.quantity.measurement.enums.IMeasurable;
+
 public enum WeightUnit implements IMeasurable {
 
     KILOGRAM(1.0),

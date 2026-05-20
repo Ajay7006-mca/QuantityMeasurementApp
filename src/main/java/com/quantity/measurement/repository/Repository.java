@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.quantity.measurement.entity.Entity;
 
-public interface Repository{
+public interface Repository {
 
     // Save measurement
     void save(Entity entity);
@@ -14,12 +14,10 @@ public interface Repository{
     List<Entity> getAllMeasurements();
 
     // Get by operation type
-    List<Entity>
-    getMeasurementsByOperation(String operationType);
+    List<Entity> getMeasurementsByOperation(String operationType);
 
     // Get by measurement type
-    List<Entity>
-    getMeasurementsByType(String measurementType);
+    List<Entity> getMeasurementsByType(String measurementType);
 
     // Delete all records
     void deleteAll();

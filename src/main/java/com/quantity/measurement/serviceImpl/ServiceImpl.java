@@ -13,7 +13,7 @@ import com.quantity.measurement.exception.Exception;
 import com.quantity.measurement.model.Quantity;
 import com.quantity.measurement.repository.Repository;
 import com.quantity.measurement.service.Service;
-import org.springframework.transaction.annotation.Transactional;
+import jakarta.transaction.Transactional;
 
 @org.springframework.stereotype.Service
 public class ServiceImpl implements Service {
@@ -52,10 +52,10 @@ public class ServiceImpl implements Service {
         }
 
         return switch (type.trim().toUpperCase()) {
-            case "LENGTH", "LENGTHUNIT" -> "LENGTH";
-            case "WEIGHT", "WEIGHTUNIT" -> "WEIGHT";
-            case "VOLUME", "VOLUMEUNIT" -> "VOLUME";
-            case "TEMPERATURE", "TEMPERATUREUNIT" -> "TEMPERATURE";
+            case "LENGTH", "LENGTH_UNIT", "LENGTHUNIT" -> "LENGTH";
+            case "WEIGHT", "WEIGHT_UNIT", "WEIGHTUNIT" -> "WEIGHT";
+            case "VOLUME", "VOLUME_UNIT", "VOLUMEUNIT" -> "VOLUME";
+            case "TEMPERATURE", "TEMPERATURE_UNIT", "TEMPERATUREUNIT" -> "TEMPERATURE";
             default -> throw new Exception("Invalid type");
         };
     }
@@ -189,6 +189,41 @@ public class ServiceImpl implements Service {
 
     @Override
     @Transactional
+    public QuantityDTO multiply(QuantityDTO q1, QuantityDTO q2, String targetUnit) {
+
+        logger.info("MULTIPLY operation started");
+
+        try {
+
+            IMeasurable u1 = getUnit(q1.getUnit(), q1.getMeasurementType());
+
+            IMeasurable u2 = getUnit(q2.getUnit(), q2.getMeasurementType());
+
+            Quantity<?> result = new Quantity<>(q1.getValue(), u1)
+                    .multiply(
+                            new Quantity<>(q2.getValue(), u2),
+                            getUnit(targetUnit, q1.getMeasurementType()));
+
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
+
+            repository.save(createEntity(q1, q2, measurementType, "MULTIPLY", result.getValue(), targetUnit));
+
+            logger.info("MULTIPLY operation successful");
+
+            return new QuantityDTO(result.getValue(), targetUnit, q1.getMeasurementType());
+
+        } catch (java.lang.Exception e) {
+
+            logger.error("MULTIPLY operation failed", e);
+
+            saveError(q1, q2, "MULTIPLY", e);
+
+            return new QuantityDTO(true, e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
     public QuantityDTO divide(QuantityDTO q1, QuantityDTO q2) {
 
         logger.info("DIVIDE operation started");
@@ -215,6 +250,44 @@ public class ServiceImpl implements Service {
             logger.error("DIVIDE operation failed", e);
 
             saveError(q1, q2, "DIVIDE", e);
+
+            return new QuantityDTO(true, e.getMessage());
+        }
+    }
+
+    @Override
+    @Transactional
+    public QuantityDTO percentage(QuantityDTO q1, QuantityDTO q2) {
+
+        logger.info("PERCENTAGE operation started");
+
+        try {
+
+            IMeasurable u1 = getUnit(q1.getUnit(), q1.getMeasurementType());
+
+            IMeasurable u2 = getUnit(q2.getUnit(), q2.getMeasurementType());
+
+            double divisor = new Quantity<>(q2.getValue(), u2).toConvert(u1).getValue();
+
+            if (Math.abs(divisor) < 1e-6) {
+                throw new ArithmeticException("Division by zero");
+            }
+
+            double result = (q1.getValue() / divisor) * 100.0;
+
+            String measurementType = normalizeMeasurementType(q1.getMeasurementType());
+
+            repository.save(createEntity(q1, q2, measurementType, "PERCENTAGE", result, "PERCENT"));
+
+            logger.info("PERCENTAGE operation successful");
+
+            return new QuantityDTO(result, "PERCENT", q1.getMeasurementType());
+
+        } catch (java.lang.Exception e) {
+
+            logger.error("PERCENTAGE operation failed", e);
+
+            saveError(q1, q2, "PERCENTAGE", e);
 
             return new QuantityDTO(true, e.getMessage());
         }

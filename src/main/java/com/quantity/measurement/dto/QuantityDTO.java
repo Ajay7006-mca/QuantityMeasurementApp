@@ -3,7 +3,9 @@ package com.quantity.measurement.dto;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
+import lombok.Data;
 
+@Data
 public class QuantityDTO {
 
     @NotNull(message = "Value is required")
@@ -37,43 +39,43 @@ public class QuantityDTO {
         this.errorMessage = errorMessage;
     }
 
-    public Double getValue() {
-        return value;
-    }
-
-    public void setValue(Double value) {
-        this.value = value;
-    }
-
-    public String getUnit() {
-        return unit;
-    }
-
-    public void setUnit(String unit) {
-        this.unit = unit;
-    }
-
-    public String getMeasurementType() {
-        return measurementType;
-    }
-
-    public void setMeasurementType(String measurementType) {
-        this.measurementType = measurementType;
-    }
-
-    public boolean isError() {
-        return error;
-    }
-
-    public void setError(boolean error) {
-        this.error = error;
-    }
-
-    public String getErrorMessage() {
-        return errorMessage;
-    }
-
-    public void setErrorMessage(String errorMessage) {
-        this.errorMessage = errorMessage;
-    }
+//    public Double getValue() {
+//        return value;
+//    }
+//
+//    public void setValue(Double value) {
+//        this.value = value;
+//    }
+//
+//    public String getUnit() {
+//        return unit;
+//    }
+//
+//    public void setUnit(String unit) {
+//        this.unit = unit;
+//    }
+//
+//    public String getMeasurementType() {
+//        return measurementType;
+//    }
+//
+//    public void setMeasurementType(String measurementType) {
+//        this.measurementType = measurementType;
+//    }
+//
+//    public boolean isError() {
+//        return error;
+//    }
+//
+//    public void setError(boolean error) {
+//        this.error = error;
+//    }
+//
+//    public String getErrorMessage() {
+//        return errorMessage;
+//    }
+//
+//    public void setErrorMessage(String errorMessage) {
+//        this.errorMessage = errorMessage;
+//    }
 }
