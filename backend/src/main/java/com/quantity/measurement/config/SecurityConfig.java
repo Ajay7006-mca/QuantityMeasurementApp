@@ -73,7 +73,7 @@ public class SecurityConfig {
                                 // Google OAuth2 Login
                                 .oauth2Login(oauth2 -> oauth2
                                                 .defaultSuccessUrl(
-                                                                "/api/auth/success",
+                                                                "http://localhost:5173/oauth-success",
                                                                 true))
 
                                 // JWT Resource Server
